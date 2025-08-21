@@ -1,0 +1,15 @@
+﻿bin/
+obj/
+.vs/
+*.user
+*.suo
+project.lock.json
+project.assets.json
+project.nuget.cache
+*.nuget.dgspec.json
+packages/**/
+*.nupkg
+*.log
+*.orig
+*.cache
+*.tmp
