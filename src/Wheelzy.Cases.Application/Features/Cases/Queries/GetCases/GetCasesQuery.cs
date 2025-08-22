@@ -13,4 +13,4 @@ public sealed record GetCasesQuery(
     string? Sort,
     int Page = 1,
     int PageSize = 25
-) : IRequest<PagedResult<CaseOverviewDto>>;
+) : IRequest<PagedResult<CaseOverviewDTO>>;

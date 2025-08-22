@@ -20,7 +20,7 @@ public class CaseRepository : ICaseRepository
     /// <summary>
     /// Consulta paginada sobre vista con filtros, búsqueda y ordenamiento dinámico
     /// </summary>
-    public async Task<PagedResult<CaseOverviewDto>> GetCasesAsync(DateTime? dateFrom, DateTime? dateTo, int[]? statusIds, int? year, string? search, string? sort, int page, int pageSize, CancellationToken ct)
+    public async Task<PagedResult<CaseOverviewDTO>> GetCasesAsync(DateTime? dateFrom, DateTime? dateTo, int[]? statusIds, int? year, string? search, string? sort, int page, int pageSize, CancellationToken ct)
     {
         IQueryable<CaseOverview> q = _db.CaseOverview.AsNoTracking();
 
@@ -70,20 +70,20 @@ public class CaseRepository : ICaseRepository
         var items = await q
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => new CaseOverviewDto(
+            .Select(x => new CaseOverviewDTO(
                 x.CaseId, x.Year, x.Make, x.Model, x.SubModel, x.Zip,
                 x.CurrentBuyer, x.CurrentQuote, x.CurrentStatusId,
                 x.CurrentStatus, x.CurrentStatusDate
             ))
             .ToListAsync(ct);
 
-        return new PagedResult<CaseOverviewDto>(items, page, pageSize, total);
+        return new PagedResult<CaseOverviewDTO>(items, page, pageSize, total);
     }
 
     /// <summary>
     /// Obtiene detalle completo con subconsultas EF Core traducibles
     /// </summary>
-    public async Task<CaseDetailDto?> GetByIdAsync(int caseId, CancellationToken ct)
+    public async Task<CaseDetailDTO?> GetByIdAsync(int caseId, CancellationToken ct)
     {
         var q = _db.Set<CarCase>()
             .AsNoTracking()
@@ -131,7 +131,7 @@ public class CaseRepository : ICaseRepository
                 .Select(s => s.Name)
                 .FirstOrDefaultAsync(ct);
 
-        return new CaseDetailDto(
+        return new CaseDetailDTO(
             row.CarCaseId,
             row.CustomerId,
             row.Year,

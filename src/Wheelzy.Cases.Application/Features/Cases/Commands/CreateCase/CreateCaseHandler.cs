@@ -12,7 +12,9 @@ internal sealed class CreateCaseHandler : IRequestHandler<CreateCaseCommand, int
         _caseService = caseService;
     }
 
-    public async Task<int> Handle(CreateCaseCommand request, CancellationToken ct)
+
+
+    public async Task<int> HandleAsync(CreateCaseCommand request, CancellationToken ct)
     {
         return await _caseService.CreateCaseAsync(
             request.Year, 

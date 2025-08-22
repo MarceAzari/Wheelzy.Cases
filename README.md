@@ -21,3 +21,41 @@ Marca una cotización como “current” (SP transaccional).
 
 ### POST /api/cases/{caseId}/status`
 Crea un estado en el historial. **Picked Up** requiere `statusDate`.
+
+## Respuesta a pregunta 3
+
+**Problemas del código original:**
+- N+1 queries (una consulta por factura)
+- SaveChanges en loop (múltiples transacciones)
+- Falta validación de nulos
+- Sin async/await
+- Sin transacción explícita
+
+**Solución optimizada:**
+```csharp
+public async Task UpdateCustomersBalanceByInvoicesAsync(List<Invoice> invoices, CancellationToken ct = default)
+{
+    if (!invoices?.Any() == true) return;
+
+    var customerIds = invoices.Where(i => i.CustomerId.HasValue)
+                             .Select(i => i.CustomerId.Value)
+                             .Distinct().ToList();
+
+    var customers = await dbContext.Customers
+        .Where(c => customerIds.Contains(c.Id))
+        .ToDictionaryAsync(c => c.Id, ct);
+
+    using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
+    
+    foreach (var invoice in invoices.Where(i => i.CustomerId.HasValue))
+    {
+        if (customers.TryGetValue(invoice.CustomerId.Value, out var customer))
+            customer.Balance -= invoice.Total;
+    }
+
+    await dbContext.SaveChangesAsync(ct);
+    await transaction.CommitAsync(ct);
+}
+```
+
+**Mejoras:** De O(n) queries a O(1) query, transacción única, validación de nulos, async/await.

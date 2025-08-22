@@ -71,6 +71,25 @@ public class CaseService : ICaseService
         _db.Set<CarCase>().Add(carCase);
         await _db.SaveChangesAsync(ct);
 
+        var bestQuote = await _db.Set<BuyerZipQuote>()
+            .Where(x => x.ZipCodeId == zipCodeEntity.ZipCodeId)
+            .OrderBy(x => x.BuyerId)
+            .FirstOrDefaultAsync(ct);
+
+        if (bestQuote != null)
+        {
+            var carCaseQuote = new CarCaseQuote
+            {
+                CarCaseId = carCase.CarCaseId,
+                BuyerId = bestQuote.BuyerId,
+                Amount = bestQuote.Amount,
+                IsCurrent = true,
+                CreatedAt = DateTime.Now
+            };
+
+            _db.Set<CarCaseQuote>().Add(carCaseQuote);
+        }
+
         var statusHistory = new CarCaseStatusHistory
         {
             CarCaseId = carCase.CarCaseId,

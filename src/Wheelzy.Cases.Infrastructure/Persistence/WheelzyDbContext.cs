@@ -13,6 +13,7 @@ public partial class WheelzyDbContext(DbContextOptions<WheelzyDbContext> options
     public DbSet<Model> Models => Set<Model>();
     public DbSet<SubModel> SubModels => Set<SubModel>();
     public DbSet<ZipCode> ZipCodes => Set<ZipCode>();
+    public DbSet<BuyerZipQuote> BuyerZipQuotes => Set<BuyerZipQuote>();
     public DbSet<CarCaseQuote> CarCaseQuotes => Set<CarCaseQuote>();
     public DbSet<CarCaseStatusHistory> CarCaseStatusHistories => Set<CarCaseStatusHistory>();
     public DbSet<CaseOverview> CaseOverview => Set<CaseOverview>();
@@ -63,6 +64,12 @@ public partial class WheelzyDbContext(DbContextOptions<WheelzyDbContext> options
         {
             entity.ToTable("ZipCode");
             entity.HasKey(e => e.ZipCodeId);
+        });
+
+        modelBuilder.Entity<BuyerZipQuote>(entity =>
+        {
+            entity.ToTable("BuyerZipQuote");
+            entity.HasKey(e => e.BuyerZipQuoteId);
         });
 
         modelBuilder.Entity<CarCaseQuote>(entity =>
