@@ -35,6 +35,12 @@ public class CodeAnalyzer
         return Regex.Replace(content, pattern, match =>
         {
             var methodName = match.Groups[4].Value;
+            
+            // No renombrar métodos que implementan interfaces conocidas
+            if (methodName == "Handle" || methodName == "Dispose" || methodName == "ToString" || 
+                methodName == "Equals" || methodName == "GetHashCode")
+                return match.Value;
+            
             if (!methodName.EndsWith("Async"))
                 methodName += "Async";
             

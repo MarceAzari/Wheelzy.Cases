@@ -16,7 +16,8 @@ internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, PagedResu
 
 
 
-    public async Task<PagedResult<CaseOverviewDTO>> HandleAsync(GetCasesQuery request, CancellationToken ct)
+
+    public async Task<PagedResult<CaseOverviewDTO>> Handle(GetCasesQuery request, CancellationToken ct)
     {
         return await _repository.GetCasesAsync(
             request.DateFrom, 

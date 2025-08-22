@@ -15,7 +15,8 @@ public sealed class GetCaseByIdHandler : IRequestHandler<GetCaseByIdQuery, CaseD
 
 
 
-    public async Task<CaseDetailDTO?> HandleAsync(GetCaseByIdQuery request, CancellationToken ct)
+
+    public async Task<CaseDetailDTO?> Handle(GetCaseByIdQuery request, CancellationToken ct)
     {
         return await _repository.GetByIdAsync(request.CaseId, ct);
     }
