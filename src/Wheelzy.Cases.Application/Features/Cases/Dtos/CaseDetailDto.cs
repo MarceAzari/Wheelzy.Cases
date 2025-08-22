@@ -1,6 +1,6 @@
 namespace Wheelzy.Cases.Application.Features.Cases.Dtos;
 
-public sealed record CaseDetailDto(
+public sealed record CaseDetailDTO(
     int CaseId,
     int CustomerId,
     short Year,

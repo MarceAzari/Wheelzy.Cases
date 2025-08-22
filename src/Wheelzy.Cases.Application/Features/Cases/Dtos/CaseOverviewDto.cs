@@ -1,6 +1,6 @@
 namespace Wheelzy.Cases.Application.Features.Cases.Dtos;
 
-public record CaseOverviewDto(
+public record CaseOverviewDTO(
     int CaseId, 
     short Year, 
     string Make, 

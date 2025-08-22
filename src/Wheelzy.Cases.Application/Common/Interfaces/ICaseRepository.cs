@@ -5,6 +5,6 @@ namespace Wheelzy.Cases.Application.Common.Interfaces;
 
 public interface ICaseRepository
 {
-    Task<PagedResult<CaseOverviewDto>> GetCasesAsync(DateTime? dateFrom, DateTime? dateTo, int[]? statusIds, int? year, string? search, string? sort, int page, int pageSize, CancellationToken ct);
-    Task<CaseDetailDto?> GetByIdAsync(int caseId, CancellationToken ct);
+    Task<PagedResult<CaseOverviewDTO>> GetCasesAsync(DateTime? dateFrom, DateTime? dateTo, int[]? statusIds, int? year, string? search, string? sort, int page, int pageSize, CancellationToken ct);
+    Task<CaseDetailDTO?> GetByIdAsync(int caseId, CancellationToken ct);
 }
