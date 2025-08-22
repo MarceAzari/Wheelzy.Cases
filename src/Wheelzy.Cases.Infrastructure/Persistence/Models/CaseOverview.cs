@@ -1,15 +1,30 @@
 namespace Wheelzy.Cases.Infrastructure.Persistence.Models;
 
-public class CaseOverview
+public sealed class CaseOverview
 {
-    public int CarCaseId { get; set; }
-    public int Year { get; set; }
-    public string Make { get; set; } = null!;
-    public string Model { get; set; } = null!;
+    public int CaseId { get; set; }
+
+
+    public short Year { get; set; }
+
+
+    public string Make { get; set; } = "";
+    public string Model { get; set; } = "";
     public string? SubModel { get; set; }
-    public string Code { get; set; } = null!;
-    public string CurrentBuyer { get; set; } = null!;
-    public decimal CurrentQuote { get; set; }
-    public string CurrentStatus { get; set; } = null!;
-    public DateTime StatusDate { get; set; }
+
+
+    public string Zip { get; set; } = "";
+    public string? CurrentBuyer { get; set; }
+
+
+    public decimal? CurrentQuote { get; set; }
+
+
+    public string? CurrentStatus { get; set; }
+
+
+    public DateTime? CurrentStatusDate { get; set; }
+
+
+    public int? CurrentStatusId { get; set; }
 }

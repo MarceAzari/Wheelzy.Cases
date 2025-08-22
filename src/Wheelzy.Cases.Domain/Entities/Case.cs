@@ -1,15 +1,27 @@
-﻿namespace Wheelzy.Cases.Domain.Entities;
+namespace Wheelzy.Cases.Domain.Entities;
 
 public class CarCase
 {
     public int CarCaseId { get; set; }
-    public int Year { get; set; }
-    public string Make { get; set; } = string.Empty;
-    public string Model { get; set; } = string.Empty;
-    public string SubModel { get; set; } = string.Empty;
-    public string Code { get; set; } = string.Empty;
-    public string CurrentBuyer { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
-    public string CurrentStatus { get; set; } = string.Empty;
-    public DateTime StatusDate { get; set; }
+
+
+    public int CustomerId { get; set; }
+
+
+    public short Year { get; set; }
+
+
+    public int MakeId { get; set; }
+
+
+    public int ModelId { get; set; }
+
+
+    public int? SubModelId { get; set; }
+
+
+    public int ZipCodeId { get; set; }
+
+
+    public DateTime CreatedAt { get; set; }
 }
