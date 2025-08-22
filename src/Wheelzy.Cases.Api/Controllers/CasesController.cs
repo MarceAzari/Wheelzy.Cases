@@ -21,7 +21,7 @@ public sealed class CasesController : ControllerBase
     }
 
     /// <summary>
-    /// Overview: Car info + current buyer/quote + current status/date (desde la view)
+    /// Obtiene vista completa de casos sin paginación
     /// </summary>
     [HttpGet("overview")]
     public async Task<ActionResult<IEnumerable<CaseOverview>>> GetOverview(CancellationToken ct)
@@ -34,22 +34,27 @@ public sealed class CasesController : ControllerBase
     }
 
     /// <summary>
-    /// Filtrado condicional de casos
+    /// Lista paginada de casos con filtros, búsqueda y ordenamiento
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<Application.Features.Cases.Dtos.CaseOverviewDto>>> GetCases(
+    public async Task<ActionResult<Application.Common.PagedResult<Application.Features.Cases.Dtos.CaseOverviewDto>>> GetCases(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateTo,
         [FromQuery] int[]? statusIds,
         [FromQuery] int? year,
-        CancellationToken ct)
+        [FromQuery] string? search,
+        [FromQuery] string? sort,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        CancellationToken ct = default)
     {
-        var data = await _mediator.Send(new Application.Features.Cases.Queries.GetCases.GetCasesQuery(dateFrom, dateTo, statusIds?.ToList(), year), ct);
-        return Ok(data);
+        var result = await _mediator.Send(
+            new Application.Features.Cases.Queries.GetCases.GetCasesQuery(dateFrom, dateTo, statusIds, year, search, sort, page, pageSize), ct);
+        return Ok(result);
     }
 
     /// <summary>
-    /// Detalle completo de un caso por ID
+    /// Obtiene detalle completo de un caso incluyendo IDs internos
     /// </summary>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Application.Features.Cases.Dtos.CaseDetailDto>> GetById(int id, CancellationToken ct)
@@ -60,7 +65,7 @@ public sealed class CasesController : ControllerBase
     }
 
     /// <summary>
-    /// Ejemplo de creación de Case via CQRS (placeholder del challenge)
+    /// Crea un nuevo caso de auto con estado inicial
     /// </summary>
     [HttpPost]
     public async Task<ActionResult<int>> CreateCase([FromBody] CreateCaseCommand cmd, CancellationToken ct)

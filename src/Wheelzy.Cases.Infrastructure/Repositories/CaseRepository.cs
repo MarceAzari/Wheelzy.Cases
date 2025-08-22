@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Wheelzy.Cases.Application.Common;
 using Wheelzy.Cases.Application.Common.Interfaces;
 using Wheelzy.Cases.Application.Features.Cases.Dtos;
 using Wheelzy.Cases.Domain.Entities;
@@ -16,7 +17,10 @@ public class CaseRepository : ICaseRepository
         _db = db;
     }
 
-    public async Task<List<CaseOverviewDto>> GetCasesAsync(DateTime? dateFrom, DateTime? dateTo, List<int>? statusIds, int? year, CancellationToken ct)
+    /// <summary>
+    /// Consulta paginada sobre vista con filtros, búsqueda y ordenamiento dinámico
+    /// </summary>
+    public async Task<PagedResult<CaseOverviewDto>> GetCasesAsync(DateTime? dateFrom, DateTime? dateTo, int[]? statusIds, int? year, string? search, string? sort, int page, int pageSize, CancellationToken ct)
     {
         IQueryable<CaseOverview> q = _db.CaseOverview.AsNoTracking();
 
@@ -29,17 +33,56 @@ public class CaseRepository : ICaseRepository
         if (dateTo.HasValue)
             q = q.Where(x => x.CurrentStatusDate <= dateTo.Value);
 
-        if (statusIds is { Count: > 0 })
+        if (statusIds is { Length: > 0 })
             q = q.Where(x => x.CurrentStatusId.HasValue && statusIds.Contains(x.CurrentStatusId.Value));
 
-        return await q.Select(x => new CaseOverviewDto(
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.Trim();
+            q = q.Where(x =>
+                (x.Make != null && x.Make.Contains(search)) ||
+                (x.Model != null && x.Model.Contains(search)) ||
+                (x.SubModel != null && x.SubModel.Contains(search)) ||
+                (x.Zip != null && x.Zip.Contains(search)) ||
+                (x.CurrentBuyer != null && x.CurrentBuyer.Contains(search)) ||
+                (x.CurrentStatus != null && x.CurrentStatus.Contains(search))
+            );
+        }
+
+        string field = string.IsNullOrWhiteSpace(sort) ? "CurrentStatusDate" : sort.Trim();
+        bool desc = field.StartsWith("-");
+        if (desc) field = field[1..];
+
+        q = field.ToLower() switch
+        {
+            "caseid" => desc ? q.OrderByDescending(x => x.CaseId) : q.OrderBy(x => x.CaseId),
+            "year" => desc ? q.OrderByDescending(x => x.Year) : q.OrderBy(x => x.Year),
+            "make" => desc ? q.OrderByDescending(x => x.Make) : q.OrderBy(x => x.Make),
+            "model" => desc ? q.OrderByDescending(x => x.Model) : q.OrderBy(x => x.Model),
+            "currentstatusdate" => desc ? q.OrderByDescending(x => x.CurrentStatusDate) : q.OrderBy(x => x.CurrentStatusDate),
+            _ => q.OrderByDescending(x => x.CurrentStatusDate)
+        };
+
+        page = page <= 0 ? 1 : page;
+        pageSize = pageSize <= 0 ? 25 : Math.Min(pageSize, 200);
+        int total = await q.CountAsync(ct);
+
+        var items = await q
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new CaseOverviewDto(
                 x.CaseId, x.Year, x.Make, x.Model, x.SubModel, x.Zip,
                 x.CurrentBuyer, x.CurrentQuote, x.CurrentStatusId,
                 x.CurrentStatus, x.CurrentStatusDate
             ))
             .ToListAsync(ct);
+
+        return new PagedResult<CaseOverviewDto>(items, page, pageSize, total);
     }
 
+    /// <summary>
+    /// Obtiene detalle completo con subconsultas EF Core traducibles
+    /// </summary>
     public async Task<CaseDetailDto?> GetByIdAsync(int caseId, CancellationToken ct)
     {
         var q = _db.Set<CarCase>()

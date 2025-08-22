@@ -15,9 +15,11 @@ public class CaseService : ICaseService
         _db = db;
     }
 
+    /// <summary>
+    /// Crea un caso normalizando datos de referencia y asignando estado inicial
+    /// </summary>
     public async Task<int> CreateCaseAsync(short year, string make, string model, string? subModel, string zipCode, int customerId, CancellationToken ct)
     {
-        // Get or create Make
         var makeEntity = await _db.Set<Make>().FirstOrDefaultAsync(x => x.Name == make, ct);
         if (makeEntity == null)
         {
@@ -26,7 +28,6 @@ public class CaseService : ICaseService
             await _db.SaveChangesAsync(ct);
         }
 
-        // Get or create Model
         var modelEntity = await _db.Set<Model>().FirstOrDefaultAsync(x => x.Name == model && x.MakeId == makeEntity.MakeId, ct);
         if (modelEntity == null)
         {
@@ -35,7 +36,6 @@ public class CaseService : ICaseService
             await _db.SaveChangesAsync(ct);
         }
 
-        // Get or create SubModel
         int? subModelId = null;
         if (!string.IsNullOrEmpty(subModel))
         {
@@ -49,7 +49,6 @@ public class CaseService : ICaseService
             subModelId = subModelEntity.SubModelId;
         }
 
-        // Get or create ZipCode
         var zipCodeEntity = await _db.Set<ZipCode>().FirstOrDefaultAsync(x => x.Code == zipCode, ct);
         if (zipCodeEntity == null)
         {
@@ -58,7 +57,6 @@ public class CaseService : ICaseService
             await _db.SaveChangesAsync(ct);
         }
 
-        // Create CarCase
         var carCase = new CarCase
         {
             Year = year,
@@ -73,9 +71,6 @@ public class CaseService : ICaseService
         _db.Set<CarCase>().Add(carCase);
         await _db.SaveChangesAsync(ct);
 
-        // Skip quote assignment - BuyerZipQuote table doesn't exist
-
-        // Create initial status
         var statusHistory = new CarCaseStatusHistory
         {
             CarCaseId = carCase.CarCaseId,

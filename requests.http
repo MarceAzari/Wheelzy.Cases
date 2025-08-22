@@ -1,0 +1,24 @@
+### Listado con paginación/orden/búsqueda
+GET https://localhost:7090/api/cases?search=Corolla&sort=-CurrentStatusDate&page=1&pageSize=20
+
+### Filtros por fecha/estado/año
+GET https://localhost:7090/api/cases?dateFrom=2025-08-20T00:00:00&dateTo=2025-08-31T23:59:59&statusIds=3&year=2016
+
+### Detalle por id
+GET https://localhost:7090/api/cases/1
+
+### Overview completo
+GET https://localhost:7090/api/cases/overview
+
+### Crear caso
+POST https://localhost:7090/api/cases
+Content-Type: application/json
+
+{
+  "year": 2020,
+  "make": "Honda",
+  "model": "Civic",
+  "subModel": "EX",
+  "zipCode": "33101",
+  "customerId": 1
+}

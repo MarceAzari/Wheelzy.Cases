@@ -13,10 +13,8 @@ public partial class WheelzyDbContext(DbContextOptions<WheelzyDbContext> options
     public DbSet<Model> Models => Set<Model>();
     public DbSet<SubModel> SubModels => Set<SubModel>();
     public DbSet<ZipCode> ZipCodes => Set<ZipCode>();
-    public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<CarCaseQuote> CarCaseQuotes => Set<CarCaseQuote>();
     public DbSet<CarCaseStatusHistory> CarCaseStatusHistories => Set<CarCaseStatusHistory>();
-    public DbSet<BuyerZipQuote> BuyerZipQuotes => Set<BuyerZipQuote>();
     public DbSet<CaseOverview> CaseOverview => Set<CaseOverview>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,12 +65,6 @@ public partial class WheelzyDbContext(DbContextOptions<WheelzyDbContext> options
             entity.HasKey(e => e.ZipCodeId);
         });
 
-        modelBuilder.Entity<Customer>(entity =>
-        {
-            entity.ToTable("Customer");
-            entity.HasKey(e => e.CustomerId);
-        });
-
         modelBuilder.Entity<CarCaseQuote>(entity =>
         {
             entity.ToTable("CarCaseQuote");
@@ -83,12 +75,6 @@ public partial class WheelzyDbContext(DbContextOptions<WheelzyDbContext> options
         {
             entity.ToTable("CarCaseStatusHistory", t => t.HasTrigger("tr_CarCaseStatusHistory_PickedUp"));
             entity.HasKey(e => e.CarCaseStatusHistoryId);
-        });
-
-        modelBuilder.Entity<BuyerZipQuote>(entity =>
-        {
-            entity.ToTable("BuyerZipQuote");
-            entity.HasKey(e => e.BuyerZipQuoteId);
         });
 
         modelBuilder.Entity<CaseOverview>(e =>

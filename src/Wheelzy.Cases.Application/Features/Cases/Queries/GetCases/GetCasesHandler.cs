@@ -1,10 +1,11 @@
 using MediatR;
+using Wheelzy.Cases.Application.Common;
 using Wheelzy.Cases.Application.Common.Interfaces;
 using Wheelzy.Cases.Application.Features.Cases.Dtos;
 
 namespace Wheelzy.Cases.Application.Features.Cases.Queries.GetCases;
 
-internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, List<CaseOverviewDto>>
+internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, PagedResult<CaseOverviewDto>>
 {
     private readonly ICaseRepository _repository;
 
@@ -13,8 +14,17 @@ internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, List<Case
         _repository = repository;
     }
 
-    public async Task<List<CaseOverviewDto>> Handle(GetCasesQuery request, CancellationToken ct)
+    public async Task<PagedResult<CaseOverviewDto>> Handle(GetCasesQuery request, CancellationToken ct)
     {
-        return await _repository.GetCasesAsync(request.DateFrom, request.DateTo, request.StatusIds, request.Year, ct);
+        return await _repository.GetCasesAsync(
+            request.DateFrom, 
+            request.DateTo, 
+            request.StatusIds, 
+            request.Year, 
+            request.Search, 
+            request.Sort, 
+            request.Page, 
+            request.PageSize, 
+            ct);
     }
 }
