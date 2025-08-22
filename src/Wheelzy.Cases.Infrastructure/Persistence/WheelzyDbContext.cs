@@ -2,12 +2,10 @@
 using Wheelzy.Cases.Domain.Entities;
 using Wheelzy.Cases.Infrastructure.Persistence.Models;
 
-namespace Wheelzy.Cases.Infrastructure;
+namespace Wheelzy.Cases.Infrastructure.Persistence;
 
-public partial class WheelzyDbContext : DbContext
+public partial class WheelzyDbContext(DbContextOptions<WheelzyDbContext> options) : DbContext(options)
 {
-    public WheelzyDbContext(DbContextOptions<WheelzyDbContext> options) : base(options) { }
-
     public DbSet<CarCase> CarCases => Set<CarCase>();
     public DbSet<Buyer> Buyers => Set<Buyer>();
     public DbSet<Status> Statuses => Set<Status>();
@@ -29,75 +27,73 @@ public partial class WheelzyDbContext : DbContext
 
         modelBuilder.Entity<CarCase>(entity =>
         {
-            entity.ToTable("CarCase", "dbo");
+            entity.ToTable("CarCase");
             entity.HasKey(e => e.CarCaseId);
-            entity.Property(e => e.CarCaseId).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<Buyer>(entity =>
         {
-            entity.ToTable("Buyer", "dbo");
+            entity.ToTable("Buyer");
             entity.HasKey(e => e.BuyerId);
         });
 
         modelBuilder.Entity<Status>(entity =>
         {
-            entity.ToTable("Status", "dbo");
+            entity.ToTable("Status");
             entity.HasKey(e => e.StatusId);
         });
 
         modelBuilder.Entity<Make>(entity =>
         {
-            entity.ToTable("Make", "dbo");
+            entity.ToTable("Make");
             entity.HasKey(e => e.MakeId);
         });
 
         modelBuilder.Entity<Model>(entity =>
         {
-            entity.ToTable("Model", "dbo");
+            entity.ToTable("Model");
             entity.HasKey(e => e.ModelId);
         });
 
         modelBuilder.Entity<SubModel>(entity =>
         {
-            entity.ToTable("SubModel", "dbo");
+            entity.ToTable("SubModel");
             entity.HasKey(e => e.SubModelId);
         });
 
         modelBuilder.Entity<ZipCode>(entity =>
         {
-            entity.ToTable("ZipCode", "dbo");
+            entity.ToTable("ZipCode");
             entity.HasKey(e => e.ZipCodeId);
         });
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.ToTable("Customer", "dbo");
+            entity.ToTable("Customer");
             entity.HasKey(e => e.CustomerId);
         });
 
         modelBuilder.Entity<CarCaseQuote>(entity =>
         {
-            entity.ToTable("CarCaseQuote", "dbo");
+            entity.ToTable("CarCaseQuote");
             entity.HasKey(e => e.CarCaseQuoteId);
         });
 
         modelBuilder.Entity<CarCaseStatusHistory>(entity =>
         {
-            entity.ToTable("CarCaseStatusHistory", "dbo");
+            entity.ToTable("CarCaseStatusHistory", t => t.HasTrigger("tr_CarCaseStatusHistory_PickedUp"));
             entity.HasKey(e => e.CarCaseStatusHistoryId);
         });
 
         modelBuilder.Entity<BuyerZipQuote>(entity =>
         {
-            entity.ToTable("BuyerZipQuote", "dbo");
+            entity.ToTable("BuyerZipQuote");
             entity.HasKey(e => e.BuyerZipQuoteId);
         });
 
-        modelBuilder.Entity<CaseOverview>(entity =>
+        modelBuilder.Entity<CaseOverview>(e =>
         {
-            entity.HasNoKey();
-            entity.ToView("vw_CaseOverview");
+            e.HasNoKey().ToView("vw_CaseOverview", "dbo");
         });
     }
 }

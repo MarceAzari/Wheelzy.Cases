@@ -4,7 +4,7 @@ using Wheelzy.Cases.Application.Features.Cases.Dtos;
 
 namespace Wheelzy.Cases.Application.Features.Cases.Queries.GetCases;
 
-internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, List<CaseDto>>
+internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, List<CaseOverviewDto>>
 {
     private readonly ICaseRepository _repository;
 
@@ -13,7 +13,7 @@ internal sealed class GetCasesHandler : IRequestHandler<GetCasesQuery, List<Case
         _repository = repository;
     }
 
-    public async Task<List<CaseDto>> Handle(GetCasesQuery request, CancellationToken ct)
+    public async Task<List<CaseOverviewDto>> Handle(GetCasesQuery request, CancellationToken ct)
     {
         return await _repository.GetCasesAsync(request.DateFrom, request.DateTo, request.StatusIds, request.Year, ct);
     }

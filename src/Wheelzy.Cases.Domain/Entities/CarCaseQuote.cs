@@ -7,4 +7,5 @@ public class CarCaseQuote
     public int BuyerId { get; set; }
     public decimal Amount { get; set; }
     public bool IsCurrent { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

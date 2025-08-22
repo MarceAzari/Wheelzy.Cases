@@ -8,4 +8,4 @@ public sealed record GetCasesQuery(
     DateTime? DateTo,
     List<int>? StatusIds,
     int? Year
-) : IRequest<List<CaseDto>>;
+) : IRequest<List<CaseOverviewDto>>;
