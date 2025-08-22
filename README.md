@@ -22,13 +22,67 @@ Marca una cotización como “current” (SP transaccional).
 ### POST /api/cases/{caseId}/status`
 Crea un estado en el historial. **Picked Up** requiere `statusDate`.
 
+---
+
+## Respuesta a pregunta 2
+
+En escenarios donde existen **datos que cambian con poca frecuencia pero que se consultan constantemente** (ej. catálogos de marcas, modelos, códigos postales, estados de casos), la estrategia más eficiente es implementar **caching**:
+
+1. **Caching en memoria (MemoryCache)**
+   - Adecuado si la aplicación corre en una sola instancia.
+   - Ejemplo: `IMemoryCache` de .NET.
+   - Reduce la carga en base de datos y mejora tiempos de respuesta.
+
+2. **Caching distribuido (Redis, SQL Server cache)**
+   - Necesario cuando la aplicación corre en **múltiples instancias**.
+   - Redis permite:
+     - Compartir caché entre instancias.
+     - Expiración e invalidación automáticas.
+     - Alta velocidad de acceso.
+
+3. **Estrategia híbrida**
+   - Usar Redis como caché central.
+   - Complementar con `MemoryCache` local como acceso inmediato, invalidado por eventos de Redis.
+
+**Ejemplo en .NET con Redis**:
+
+```csharp
+// Startup.cs
+services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "WheelzyCases:";
+});
+
+// Uso en servicio
+public async Task<List<CarModel>> GetCarModelsAsync()
+{
+    var cacheKey = "CarModels";
+    var cachedData = await _cache.GetStringAsync(cacheKey);
+
+    if (!string.IsNullOrEmpty(cachedData))
+        return JsonSerializer.Deserialize<List<CarModel>>(cachedData);
+
+    var carModels = await _dbContext.CarModels.ToListAsync();
+
+    await _cache.SetStringAsync(
+        cacheKey,
+        JsonSerializer.Serialize(carModels),
+        new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12)
+        });
+
+    return carModels;
+}
+
 ## Respuesta a pregunta 3
 
 **Problemas del código original:**
 - N+1 queries (una consulta por factura)
-- SaveChanges en loop (múltiples transacciones)
+- `SaveChanges` en loop (múltiples transacciones)
 - Falta validación de nulos
-- Sin async/await
+- Sin `async/await`
 - Sin transacción explícita
 
 **Solución optimizada:**
@@ -56,6 +110,34 @@ public async Task UpdateCustomersBalanceByInvoicesAsync(List<Invoice> invoices, 
     await dbContext.SaveChangesAsync(ct);
     await transaction.CommitAsync(ct);
 }
-```
 
-**Mejoras:** De O(n) queries a O(1) query, transacción única, validación de nulos, async/await.
+## Respuesta a pregunta 5
+
+Se implementó un analizador y reescritor de código en **C#** utilizando **Roslyn (Microsoft.CodeAnalysis)**.  
+Este componente recorre todos los archivos `.cs` de una carpeta y subcarpetas, aplicando las siguientes reglas:
+
+1. **Métodos async sin sufijo `Async`**
+   - Detecta métodos `async` cuyo nombre no termina en `Async`.
+   - Renombra automáticamente el método para cumplir con la convención.
+
+2. **Normalización de sufijos `Vm`, `Vms`, `Dto`, `Dtos`**
+   - Reemplaza estas ocurrencias por las formas correctas:
+     - `Vm` → `VM`
+     - `Vms` → `VMs`
+     - `Dto` → `DTO`
+     - `Dtos` → `DTOs`
+
+3. **Formato entre métodos**
+   - Verifica que exista una línea en blanco entre métodos consecutivos.
+   - Inserta la línea en blanco si no está presente.
+
+### Ejemplo simplificado
+
+Antes:
+```csharp
+public async Task GetUser() { ... }
+public class UserDto { ... }
+
+public async Task GetUserAsync() { ... }
+
+public class UserDTO { ... }
